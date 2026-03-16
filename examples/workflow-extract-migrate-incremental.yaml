@@ -1,6 +1,9 @@
-# Full sync: extract + migrate (no incremental)
-# Run this FIRST to create the sync manifest. Then use workflow-nick-jordan-incremental.yaml
-# to test incremental (re-extract + migrate with --incremental).
+# Incremental migration: re-export source then sync only changed flags
+# Use this AFTER the initial migration. Runs: extract source → migrate (incremental).
+# Skips map-members; use the same source/destination as workflow-full.yaml.
+#
+# Run:  deno task workflow examples/workflow-extract-migrate-incremental.yaml
+#   or: deno task workflow -f examples/workflow-extract-migrate-incremental.yaml
 
 workflow:
   steps:
@@ -8,11 +11,11 @@ workflow:
     - migrate
 
 source:
-  projectKey: 
+  projectKey: Aman-Migration-Test
   domain: app.launchdarkly.com
 
 destination:
-  projectKey:   
+  projectKey: aman-migration-2
   domain: app.launchdarkly.com
 
 extraction:
@@ -20,5 +23,24 @@ extraction:
 
 migration:
   migrateSegments: true
-  assignMaintainerIds: false
-  incremental: true  # Full sync; creates sync manifest for incremental runs
+  assignMaintainerIds: false   # Not needed for incremental; mapping from initial run
+  incremental: true            # Only sync flags/segments changed since last run
+  # conflictPrefix: "us-"
+  # targetView: "us-migration-2024"
+  environments:
+    - production
+    - staging
+  environmentMapping:
+    production: production
+    staging: staging
+
+  # Optional: Migrate only these flags (includeFlags). If set, only these keys are migrated.
+  # includeFlags:
+  #   - feature-one
+  #   - feature-two
+
+  # Optional: Exclude these flags from migration (excludeFlags).
+  # excludeFlags:
+  #   - deprecated-flag
+  #   - experimental-feature
+

@@ -46,3 +46,12 @@ migration:
     dev: development
     stg: staging
 
+  # Include only these flag keys (optional)
+  # includeFlags:
+  #   - feature-one
+  #   - feature-two
+
+  # Exclude these flag keys (optional)
+  # excludeFlags:
+  #   - deprecated-flag
+

@@ -1,25 +1,26 @@
-# Complete LaunchDarkly Migration Workflow
-# Runs all steps: extract source → map members → migrate
-# This is the DEFAULT behavior if workflow.steps is not specified
+# Initial migration: full export and first-time migrate
+# Use this for the FIRST run. Runs: extract source → map members → migrate.
+#
+# Run:  deno task workflow examples/workflow-full.yaml
+#   or: deno task workflow -f examples/workflow-full.yaml
 
-# Optional: Explicitly define steps (if omitted, runs all steps by default)
-# workflow:
-#   steps:
-#     - extract-source
-#     - map-members
-#     - migrate
+workflow:
+  steps:
+    - extract-source
+    - map-members
+    - migrate
 
 source:
-  projectKey: us-production
+  projectKey: Aman-Migration-Test
   domain: app.launchdarkly.com  # Optional: Defaults to app.launchdarkly.com
 
 destination:
-  projectKey: eu-production
+  projectKey: aman-migration-2
   domain: app.launchdarkly.com  # Optional: Use app.eu.launchdarkly.com for EU instance
 
-# Optional: Control what data to extract from source
-# extraction:
-#   includeSegments: true  # Uncomment to extract segments (only needed if migrateSegments: true)
+# Extract segments so they can be migrated (needed when migrateSegments: true)
+extraction:
+  includeSegments: true
 
 # Optional: Configure member mapping output location
 memberMapping:
@@ -27,25 +28,27 @@ memberMapping:
 
 # Migration configuration
 migration:
-  # Use the member mapping we just created
   assignMaintainerIds: true
-  
-  # Include segments
   migrateSegments: true
-  
-  # Handle conflicts
-  conflictPrefix: "us-"
-  
-  # Organize in view
-  targetView: "us-migration-2024"
-  
-  # Only migrate these environments
+  # conflictPrefix: "us-"
+  # targetView: "us-migration-2024"
   environments:
     - production
-    - staging
-  
-  # Map environment keys if needed
+    - test
   environmentMapping:
     production: production
-    staging: staging
+    test: test
+    #staging: staging
+
+  # Optional: Migrate only these flags (includeFlags). If set, only these keys are migrated.
+  includeFlags:
+     - Config-welcome-message
+
+  # Optional: Exclude these flags from migration (excludeFlags).
+  # excludeFlags:
+  #   - deprecated-flag
+  #   - experimental-feature
+
+  # Optional: Migrate up to N flags in parallel (default: 10). Speeds up large migrations.
+  # concurrency: 10
 

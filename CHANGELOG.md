@@ -5,15 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Include / exclude flags**: Migrate only specific flags or exclude others
+  - `migration.includeFlags` (YAML array or `--include-flags` comma-separated): only these flag keys are migrated
+  - `migration.excludeFlags` (YAML array or `--exclude-flags` comma-separated): these flag keys are skipped
+  - Supported in workflow YAMLs and in the migrate task (CLI and config file)
+- **Parallel flag migration**: Migrate up to N flags at a time (default 10)
+  - `migration.concurrency` in workflow YAML or `--concurrency N` for the migrate task
+  - Speeds up migration by processing multiple flags concurrently; rate limiting still applies
+- **Workflow positional config path**: Run with the YAML file as a positional argument (e.g. `deno task workflow examples/workflow-full.yaml`) in addition to `-f` / `--config`
+- **Workflow task shortcuts**: `deno task workflow:full` and `deno task workflow:incremental` run the full and incremental workflow examples
+- **Compact migration guide**: `docs/launchdarkly_migration_steps.md` with overview, key YAML settings per file, phases, and quick reference
+
+### Changed
+
+- **Migration config**: Config files can use either `migration:` or `options:` for migration settings; migrate task accepts both
+- **Example workflows**: `workflow-full.yaml` and `workflow-extract-migrate-incremental.yaml` updated for initial vs incremental use, with `includeFlags` / `excludeFlags` and project key placeholders; `conflictPrefix` and `targetView` commented out in examples
+
+### Fixed
+
+- **Flag keys that differ only by case now migrate as separate flags**  
+  Extract now writes each flag's data to an index-based file (`flags/0.json`, `flags/1.json`, ...) instead of using the flag key as the filename. On case-insensitive filesystems (e.g. macOS default), keys like `Flag-one` and `flag-one` no longer overwrite the same file, so both flags migrate with their correct configuration. Migrate tries the index-based path first and falls back to the key-based path, so existing extractions continue to work. Re-run extract to get the new format and correct behavior for case-differentiated keys.
+
 ## [3.0.2] - 2025-12-09
 
 ### Fixed
+
 - **Segment Pagination**: Fixed segment extraction being limited to 50 segments per environment
   - Previously relied on `_links.next` which wasn't consistently returned by the API
   - Now uses `totalCount` from API response to properly paginate through all segments
   - Improved progress logging to show actual fetched range (e.g., "Fetched segments 1 to 50 of 500")
 
 ### Changed
+
 - **Smart Rate Limiting**: Enhanced rate limit handling using HTTP response headers
   - Reads `x-ratelimit-global-remaining`, `x-ratelimit-route-remaining`, and `x-ratelimit-reset` headers
   - Proactive throttling when remaining requests fall below threshold (avoids hitting 429s)
@@ -25,6 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [3.0.1] - 2025-01-14
 
 ### Changed
+
 - **License**: Migrated from MIT License to Apache 2.0 License for LaunchDarkly Labs compliance
 - **README**: Updated license badge and added LaunchDarkly Labs disclaimer
 - **Repository**: Added comprehensive topics including migrations, migration-tools, and LaunchDarkly Labs tags
@@ -32,6 +60,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [3.0.0] - 2025-10-13
 
 ### Added
+
 - **Workflow Orchestrator**: Complete end-to-end migration automation from a single YAML config file
   - Runs full workflow (extract → map → migrate) by default when no steps specified
   - Selective step execution for custom workflows
@@ -78,6 +107,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Prevents duplicate approval requests
 
 ### Changed
+
 - **Major refactoring** of migration script for improved maintainability and modularity
 - Enhanced logging throughout workflow and migration processes
 - Improved error handling and user feedback
@@ -85,15 +115,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Segments are now only extracted when explicitly needed (via `extraction.includeSegments` or `migration.migrateSegments`)
 
 ### Fixed
+
 - Dry-run mode now correctly validates without making changes
 - Fixed handling of environments with approval requirements
 
 ## [2.1.0] - 2025-08-29
 
 ### Added
+
 - Flag import from external sources (JSON/CSV) for thirt-party migrations
 
 ### Changed
+
 - Script renaming for clarity (`source` → `source_from_ld`, etc.)
 - Project reorganization into logical folders
 - Enhanced environment pagination support
@@ -101,12 +134,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.0] - 2025-08-05
 
 ### Added
+
 - Core migration functionality between LaunchDarkly instances
 - Member mapping between accounts
 - Migration time estimation
 - Project structure and documentation
 
 ### Features
+
 - Source project data extraction
 - Flag, segment, and environment migration
 - Maintainer mapping and assignment
@@ -115,4 +150,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - Forgotten date
 
 ### Added
+
 - Initial version of this project
+

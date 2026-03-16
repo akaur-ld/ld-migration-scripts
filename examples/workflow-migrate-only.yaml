@@ -6,11 +6,11 @@ workflow:
     - migrate
 
 source:
-  projectKey: my-source-project
+  projectKey: Aman-Migration-Test
   domain: app.launchdarkly.com  # Optional: Defaults to app.launchdarkly.com
 
 destination:
-  projectKey: my-dest-project
+  projectKey: aman-migration-2
   domain: app.launchdarkly.com  # Optional: Use app.eu.launchdarkly.com for EU instance
 
 migration:
@@ -20,6 +20,16 @@ migration:
   migrateSegments: true
   conflictPrefix: "imported-"
   targetView: "migration-2024"
+  
+  # Optional: Migrate only these flags (includeFlags)
+  # includeFlags:
+  #   - feature-one
+  #   - feature-two
+  
+  # Optional: Exclude these flags from migration (excludeFlags)
+  # excludeFlags:
+  #   - deprecated-flag
+  #   - experimental-feature
   
   environments:
     - production

@@ -228,5 +228,7 @@ for (const [index, flagKey] of flags.entries()) {
 
   const flagData = await flagResp.json();
 
-  await writeSourceData(`${projPath}/flags`, flagKey, flagData);
+  // Use index-based filenames so flags that differ only by case (e.g. "Flag-one" vs "flag-one")
+  // get separate files on case-insensitive filesystems (e.g. macOS default).
+  await writeSourceData(`${projPath}/flags`, String(index), flagData);
 }
